@@ -12,9 +12,9 @@ services:
      - mssql-server-data:/var/opt/mssql
     healthcheck:
         test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P zaq1@WSX -Q 'SELECT 1' || exit 1"]
-        interval: 10s
+        interval: 30s
         retries: 10
-        start_period: 10s
+        start_period: 15s
         timeout: 3s
     deploy:
       resources:

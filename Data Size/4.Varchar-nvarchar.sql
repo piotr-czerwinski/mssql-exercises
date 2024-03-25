@@ -1,3 +1,7 @@
+-- https://techcommunity.microsoft.com/t5/sql-server-blog/introducing-utf-8-support-for-sql-server/ba-p/734928
+-- https://learn.microsoft.com/en-us/ef/core/providers/sql-server/columns?tabs=ef-core-7
+-- https://www.sqlservercentral.com/forums/topic/nvarchar4000-and-performance#bm1997863
+
 USE [DataTypes];
 GO
 

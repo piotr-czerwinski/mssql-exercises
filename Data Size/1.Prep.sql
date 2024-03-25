@@ -43,7 +43,27 @@ SELECT N
 	option (maxrecursion 0);
 GO
 
--- data-types-varchar-maxlength
+
+-- page-size
+CREATE TABLE [dbo].[PageSize_Below4k] (
+	  [FixedSizeTextColumn] CHAR (4039) NULL
+);
+GO
+
+CREATE TABLE [dbo].[PageSize_4k] (
+	  [FixedSizeTextColumn] CHAR (4040) NULL
+);
+GO
+
+INSERT INTO [dbo].[PageSize_Below4k] ([FixedSizeTextColumn])
+SELECT TOP (16 * 1024) 'a'
+FROM [SmallintRangeSource];
+
+INSERT INTO [dbo].[PageSize_4k] ([FixedSizeTextColumn])
+SELECT TOP (16 * 1024) 'a'
+FROM [SmallintRangeSource];
+
+-- varchar-maxlength
 CREATE TABLE [dbo].[VarcharLength_Max] (
     [TextColumn] VARCHAR (MAX) NOT NULL
 );
@@ -63,6 +83,11 @@ CREATE TABLE [dbo].[VarcharLength_36] (
     [TextColumn] VARCHAR (36) NOT NULL
 );
 GO
+
+TRUNCATE TABLE [dbo].[VarcharLength_Max];
+TRUNCATE TABLE [dbo].[VarcharLength_1024];
+TRUNCATE TABLE [dbo].[VarcharLength_72];
+TRUNCATE TABLE [dbo].[VarcharLength_36];
 
 DECLARE @VarCharTestRowCount int;
 SET @VarCharTestRowCount = 1024 * 1024; --~1kk
@@ -89,8 +114,7 @@ CROSS JOIN [SmallintRangeSource] AS SRS2;
 GO
 
 
-
--- data-types-varchar-nvarchar
+-- varchar-nvarchar
 SELECT CONVERT (varchar(256), SERVERPROPERTY('collation'));  
 
 CREATE TABLE [dbo].[Varchar_8_Default_Collation] (

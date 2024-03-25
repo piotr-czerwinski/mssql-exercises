@@ -28,3 +28,5 @@ GROUP BY
 
 select top 100 * from #Temp
 ORDER BY TotalPages desc;
+
+DROP TABLE #Temp
