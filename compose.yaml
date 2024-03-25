@@ -8,11 +8,22 @@ services:
     restart: always
     ports:
       - 1433:1433
+    volumes:
+     - mssql-server-data:/var/opt/mssql
     healthcheck:
-        test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Express -Q 'SELECT 1' || exit 1"]
+        test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P zaq1@WSX -Q 'SELECT 1' || exit 1"]
         interval: 10s
         retries: 10
         start_period: 10s
-        timeout: 3s     
+        timeout: 3s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2024M
+          #memory: 7144M
+
+volumes:
+  mssql-server-data:
          
        
