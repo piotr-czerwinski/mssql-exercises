@@ -1,12 +1,12 @@
 ﻿USE master;
-GO
+
+BEGIN  -- DB INIT
 
 IF  EXISTS (SELECT [Name] FROM sys.databases WHERE name = N'DataTypes')
 BEGIN
 	ALTER DATABASE [DataTypes] set single_user with rollback immediate
 	DROP DATABASE [DataTypes];
 END
-GO
 
 CREATE DATABASE [DataTypes] ON
 (
@@ -20,15 +20,15 @@ LOG ON
 	FILENAME = '/var/opt/mssql/data/datatypes.ldf',
     SIZE = 512 MB,
     FILEGROWTH = 64 MB);
-GO
+END
 
 USE [DataTypes];
-GO
 
+BEGIN -- Tech table
 CREATE TABLE [dbo].[SmallintRangeSource] (
     [VALUE] smallint NOT NULL
 );
-GO
+
 
 WITH [NumRange] AS (
   SELECT 1 AS N
@@ -41,19 +41,17 @@ WITH [NumRange] AS (
 SELECT N 
 	FROM [NumRange]
 	option (maxrecursion 0);
-GO
 
+END
 
--- page-size
+BEGIN -- page-size
 CREATE TABLE [dbo].[PageSize_Below4k] (
 	  [FixedSizeTextColumn] CHAR (4039) NULL
 );
-GO
 
 CREATE TABLE [dbo].[PageSize_4k] (
 	  [FixedSizeTextColumn] CHAR (4040) NULL
 );
-GO
 
 INSERT INTO [dbo].[PageSize_Below4k] ([FixedSizeTextColumn])
 SELECT TOP (16 * 1024) 'a'
@@ -63,31 +61,25 @@ INSERT INTO [dbo].[PageSize_4k] ([FixedSizeTextColumn])
 SELECT TOP (16 * 1024) 'a'
 FROM [SmallintRangeSource];
 
--- varchar-maxlength
+END
+
+BEGIN -- varchar-maxlength
+
 CREATE TABLE [dbo].[VarcharLength_Max] (
     [TextColumn] VARCHAR (MAX) NOT NULL
 );
-GO
 
 CREATE TABLE [dbo].[VarcharLength_1024] (
     [TextColumn] VARCHAR (1024) NOT NULL
 );
-GO
 
 CREATE TABLE [dbo].[VarcharLength_72] (
     [TextColumn] VARCHAR (72) NOT NULL
 );
-GO
 
 CREATE TABLE [dbo].[VarcharLength_36] (
     [TextColumn] VARCHAR (36) NOT NULL
 );
-GO
-
-TRUNCATE TABLE [dbo].[VarcharLength_Max];
-TRUNCATE TABLE [dbo].[VarcharLength_1024];
-TRUNCATE TABLE [dbo].[VarcharLength_72];
-TRUNCATE TABLE [dbo].[VarcharLength_36];
 
 DECLARE @VarCharTestRowCount int;
 SET @VarCharTestRowCount = 1024 * 1024; --~1kk
@@ -111,21 +103,20 @@ INSERT INTO [dbo].[VarcharLength_36]
 SELECT TOP (@VarCharTestRowCount) NEWID() 
 FROM [SmallintRangeSource] AS SRS1
 CROSS JOIN [SmallintRangeSource] AS SRS2;
-GO
+
+END
 
 
--- varchar-nvarchar
+BEGIN -- varchar-nvarchar
 SELECT CONVERT (varchar(256), SERVERPROPERTY('collation'));  
 
 CREATE TABLE [dbo].[Varchar_8_Default_Collation] (
     [TextColumn] VARCHAR (8) NOT NULL
 );
-GO
 
 CREATE TABLE [dbo].[NVarchar_8_Default_Collation] (
     [TextColumn] NVARCHAR (8) NOT NULL
 );
-GO
 
 /*
 Starting with sql 2019
@@ -138,12 +129,10 @@ modelBuilder.Entity<Varchar_UTF8_ASCII_Conten>()
 CREATE TABLE [dbo].[Varchar_8_UTF8_ASCII_Content] (
     [TextColumn] VARCHAR (8) COLLATE Latin1_General_100_CI_AI_SC_UTF8 NOT NULL 
 );
-GO
 
 CREATE TABLE [dbo].[Varchar_8_UTF8_PL_CONTENT] (
     [TextColumn] VARCHAR (8) COLLATE Latin1_General_100_CI_AI_SC_UTF8 NOT NULL
 );
-GO
 
 TRUNCATE TABLE [dbo].[Varchar_8_Default_Collation];
 TRUNCATE TABLE [dbo].[NVarchar_8_Default_Collation];
@@ -173,4 +162,4 @@ SELECT TOP (@UTF8TestRowCount) N'ąęłó' -- in utf8 pl characters are 2 bytes 
 FROM [SmallintRangeSource] AS SRS1
 CROSS JOIN [SmallintRangeSource] AS SRS2;
 
-GO
+END
