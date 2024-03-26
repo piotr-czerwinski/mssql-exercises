@@ -2,7 +2,7 @@
 -- https://learn.microsoft.com/en-us/ef/core/providers/sql-server/columns?tabs=ef-core-7
 -- https://www.sqlservercentral.com/forums/topic/nvarchar4000-and-performance#bm1997863
 
-USE [DataTypes];
+USE [DataSize];
 GO
 
 SELECT TOP (1000) [TextColumn]

@@ -1,4 +1,4 @@
-USE [DataTypes];
+USE [DataSize];
 GO
 
 SELECT TOP (1000) [TextColumn]

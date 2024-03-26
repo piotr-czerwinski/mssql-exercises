@@ -1,4 +1,4 @@
-USE [DataTypes];
+USE [DataSize];
 GO
 
 SELECT TOP (1000) [FixedSizeTextColumn]
@@ -18,7 +18,7 @@ SELECT
 	, min_record_size_in_bytes
 	, max_record_size_in_bytes
 	FROM sys.dm_db_index_physical_stats
-    (DB_ID(N'DataTypes'), OBJECT_ID(N'dbo.PageSize_Below4k'), NULL, NULL , 'DETAILED');
+    (DB_ID(N'DataSize'), OBJECT_ID(N'dbo.PageSize_Below4k'), NULL, NULL , 'DETAILED');
 
 SELECT 
 	  record_count
@@ -27,6 +27,6 @@ SELECT
 	, min_record_size_in_bytes
 	, max_record_size_in_bytes
 	FROM sys.dm_db_index_physical_stats
-    (DB_ID(N'DataTypes'), OBJECT_ID(N'dbo.PageSize_4k'), NULL, NULL , 'DETAILED');
+    (DB_ID(N'DataSize'), OBJECT_ID(N'dbo.PageSize_4k'), NULL, NULL , 'DETAILED');
 
 GO

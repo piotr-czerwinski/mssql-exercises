@@ -2,47 +2,27 @@
 
 BEGIN  -- DB INIT
 
-IF  EXISTS (SELECT [Name] FROM sys.databases WHERE name = N'DataTypes')
+IF  EXISTS (SELECT [Name] FROM sys.databases WHERE name = N'DataSize')
 BEGIN
-	ALTER DATABASE [DataTypes] set single_user with rollback immediate
-	DROP DATABASE [DataTypes];
+	ALTER DATABASE [DataSize] set single_user with rollback immediate
+	DROP DATABASE [DataSize];
 END
 
-CREATE DATABASE [DataTypes] ON
+CREATE DATABASE [DataSize] ON
 (
-	NAME = DataTypes_dat,
-	FILENAME = '/var/opt/mssql/data/datatypes.mdf',
+	NAME = DataSize_dat,
+	FILENAME = '/var/opt/mssql/data/DataSize.mdf',
     SIZE = 512 MB,
     FILEGROWTH = 64 MB)
 LOG ON
 (
-	NAME = DataTypes_log, 
-	FILENAME = '/var/opt/mssql/data/datatypes.ldf',
+	NAME = DataSize_log, 
+	FILENAME = '/var/opt/mssql/data/DataSize.ldf',
     SIZE = 512 MB,
     FILEGROWTH = 64 MB);
 END
 
-USE [DataTypes];
-
-BEGIN -- Tech table
-CREATE TABLE [dbo].[SmallintRangeSource] (
-    [VALUE] smallint NOT NULL
-);
-
-
-WITH [NumRange] AS (
-  SELECT 1 AS N
-  UNION ALL
-  SELECT N + 1 as N
-  from [NumRange]
-  where N < 32767
- )
- INSERT INTO [dbo].[SmallintRangeSource]
-SELECT N 
-	FROM [NumRange]
-	option (maxrecursion 0);
-
-END
+USE [DataSize];
 
 BEGIN -- page-size
 CREATE TABLE [dbo].[PageSize_Below4k] (
@@ -54,12 +34,12 @@ CREATE TABLE [dbo].[PageSize_4k] (
 );
 
 INSERT INTO [dbo].[PageSize_Below4k] ([FixedSizeTextColumn])
-SELECT TOP (16 * 1024) 'a'
-FROM [SmallintRangeSource];
+SELECT 'a'
+FROM GENERATE_SERIES(1, 16 * 1024);
 
 INSERT INTO [dbo].[PageSize_4k] ([FixedSizeTextColumn])
-SELECT TOP (16 * 1024) 'a'
-FROM [SmallintRangeSource];
+SELECT 'a'
+FROM GENERATE_SERIES(1, 16 * 1024);
 
 END
 
@@ -85,24 +65,20 @@ DECLARE @VarCharTestRowCount int;
 SET @VarCharTestRowCount = 1024 * 1024; --~1kk
 
 INSERT INTO [dbo].[VarcharLength_Max]
-SELECT TOP (@VarCharTestRowCount) NEWID() -- guid length 36
-FROM [SmallintRangeSource] AS SRS1
-CROSS JOIN [SmallintRangeSource] AS SRS2;
+SELECT NEWID() -- guid length 36
+FROM GENERATE_SERIES(1, @VarCharTestRowCount);
 
 INSERT INTO [dbo].[VarcharLength_1024]
-SELECT TOP (@VarCharTestRowCount) NEWID() 
-FROM [SmallintRangeSource] AS SRS1
-CROSS JOIN [SmallintRangeSource] AS SRS2;
+SELECT NEWID() 
+FROM GENERATE_SERIES(1, @VarCharTestRowCount);
 
 INSERT INTO [dbo].[VarcharLength_72]
-SELECT TOP (@VarCharTestRowCount) NEWID() 
-FROM [SmallintRangeSource] AS SRS1
-CROSS JOIN [SmallintRangeSource] AS SRS2;
+SELECT NEWID() 
+FROM GENERATE_SERIES(1, @VarCharTestRowCount);
 
 INSERT INTO [dbo].[VarcharLength_36]
-SELECT TOP (@VarCharTestRowCount) NEWID() 
-FROM [SmallintRangeSource] AS SRS1
-CROSS JOIN [SmallintRangeSource] AS SRS2;
+SELECT NEWID() 
+FROM GENERATE_SERIES(1, @VarCharTestRowCount);
 
 END
 
@@ -134,32 +110,23 @@ CREATE TABLE [dbo].[Varchar_8_UTF8_PL_CONTENT] (
     [TextColumn] VARCHAR (8) COLLATE Latin1_General_100_CI_AI_SC_UTF8 NOT NULL
 );
 
-TRUNCATE TABLE [dbo].[Varchar_8_Default_Collation];
-TRUNCATE TABLE [dbo].[NVarchar_8_Default_Collation];
-TRUNCATE TABLE [dbo].[Varchar_8_UTF8_ASCII_Content];
-TRUNCATE TABLE [dbo].[Varchar_8_UTF8_PL_CONTENT];
-
 DECLARE @UTF8TestRowCount int;
 SET @UTF8TestRowCount = 1024 * 1024; --~1kk
 
 INSERT INTO [dbo].[Varchar_8_Default_Collation]
-SELECT TOP (@UTF8TestRowCount) '12345678'
-FROM [SmallintRangeSource] AS SRS1
-CROSS JOIN [SmallintRangeSource] AS SRS2;
+SELECT '12345678'
+FROM GENERATE_SERIES(1, @UTF8TestRowCount);
 
 INSERT INTO [dbo].[NVarchar_8_Default_Collation]
-SELECT TOP (@UTF8TestRowCount) '12345678'
-FROM [SmallintRangeSource] AS SRS1
-CROSS JOIN [SmallintRangeSource] AS SRS2;
+SELECT '12345678'
+FROM GENERATE_SERIES(1, @UTF8TestRowCount);
 
 INSERT INTO [dbo].[Varchar_8_UTF8_ASCII_Content]
-SELECT TOP (@UTF8TestRowCount) '12345678'
-FROM [SmallintRangeSource] AS SRS1
-CROSS JOIN [SmallintRangeSource] AS SRS2;
+SELECT '12345678'
+FROM GENERATE_SERIES(1, @UTF8TestRowCount);
 
 INSERT INTO [dbo].[Varchar_8_UTF8_PL_CONTENT]
-SELECT TOP (@UTF8TestRowCount) N'ąęłó' -- in utf8 pl characters are 2 bytes long. This means only 4 chars would fit in varchar8
-FROM [SmallintRangeSource] AS SRS1
-CROSS JOIN [SmallintRangeSource] AS SRS2;
+SELECT N'ąęłó' -- in utf8 pl characters are 2 bytes long. This means only 4 chars would fit in varchar8
+FROM GENERATE_SERIES(1, @UTF8TestRowCount);
 
 END

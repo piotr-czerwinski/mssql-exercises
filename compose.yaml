@@ -3,7 +3,7 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: zaq1@WSX
-      MSSQL_PID: Express
+      MSSQL_PID: Developer
     image: mcr.microsoft.com/mssql/server:2022-latest
     restart: always
     ports:
