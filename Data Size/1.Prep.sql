@@ -21,6 +21,7 @@ LOG ON
     SIZE = 512 MB,
     FILEGROWTH = 64 MB);
 END
+GO
 
 USE [DataSize];
 
@@ -129,4 +130,51 @@ INSERT INTO [dbo].[Varchar_8_UTF8_PL_CONTENT]
 SELECT N'ąęłó' -- in utf8 pl characters are 2 bytes long. This means only 4 chars would fit in varchar8
 FROM GENERATE_SERIES(1, @UTF8TestRowCount);
 
+END
+
+BEGIN  -- Fragmentation
+
+DECLARE @DefragmentationTestRowCount int;
+ SET @DefragmentationTestRowCount = 128 * 1024;
+
+CREATE TABLE [dbo].[Defragmented]
+ (
+   Id int NOT NULL,
+   Status tinyint NOT NULL DEFAULT 0,
+   VariableSizeText varchar(100)  NOT NULL DEFAULT '',
+   CONSTRAINT PK_Defragmented PRIMARY KEY(Id)
+ );
+
+ CREATE TABLE [dbo].[Fragmented]
+ (
+   Id int NOT NULL,
+   Status tinyint NOT NULL DEFAULT 0,
+   VariableSizeText varchar(100)  NOT NULL DEFAULT '',
+   CONSTRAINT PK_Fragmented PRIMARY KEY(Id)
+ );
+
+INSERT [dbo].[Defragmented](Id, VariableSizeText)
+   SELECT value, REPLICATE('a', (abs(CHECKSUM(newid())) % 100))
+     FROM GENERATE_SERIES(1, @DefragmentationTestRowCount);
+
+ALTER INDEX ALL ON [dbo].[Defragmented] REBUILD;
+ 
+INSERT [dbo].[Fragmented](Id, VariableSizeText)
+   SELECT value, REPLICATE('a', (abs(CHECKSUM(newid())) % 100))
+     FROM GENERATE_SERIES(1, @DefragmentationTestRowCount);
+
+DECLARE @i int = 1
+ 
+ WHILE @i <= 10 
+ BEGIN 
+
+ MERGE INTO [Fragmented] 
+   USING (SELECT value as Id, REPLICATE('a', (abs(CHECKSUM(newid())) % 100)) AS NewText
+     FROM GENERATE_SERIES(1, @DefragmentationTestRowCount)) NewRandomValues 
+      ON [Fragmented].Id = NewRandomValues.Id
+WHEN MATCHED THEN
+   UPDATE 
+      SET VariableSizeText = NewRandomValues.NewText; 
+   SET @i += 1;
+ END
 END
