@@ -1,0 +1,4 @@
+"C:\Program Files\Microsoft Corporation\RMLUtils\ostress" -Slocalhost,1433 -dDataSize -Q"SELECT TOP (1000) [TextColumn] FROM [dbo].[VarcharLength_max] order by [TextColumn]" -r2 -n5 -q -USA -Pzaq1@WSX -T146
+"C:\Program Files\Microsoft Corporation\RMLUtils\ostress" -Slocalhost,1433 -dDataSize -Q"SELECT TOP (1000) [TextColumn] FROM [dbo].[VarcharLength_1024] order by [TextColumn]" -r2 -n5 -q -USA -Pzaq1@WSX -T146
+"C:\Program Files\Microsoft Corporation\RMLUtils\ostress" -Slocalhost,1433 -dDataSize -Q"SELECT TOP (1000) [TextColumn] FROM [dbo].[VarcharLength_72] order by [TextColumn]" -r2 -n5 -q -USA -Pzaq1@WSX -T146
+"C:\Program Files\Microsoft Corporation\RMLUtils\ostress" -Slocalhost,1433 -dDataSize -Q"SELECT TOP (1000) [TextColumn] FROM [dbo].[VarcharLength_36] order by [TextColumn]" -r2 -n5 -q -USA -Pzaq1@WSX -T146
